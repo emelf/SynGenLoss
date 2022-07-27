@@ -1,0 +1,1 @@
+from SynGenLoss.Model1.aabjora_model import AabjoraModel
