@@ -3,7 +3,8 @@
 The SynGenLoss python library contains a simplified power loss model of a synchronous machine using loss calculations found in [1] and the saturation model used in [2]. 
 
 # Getting started 
-See SynGenLoss/Examples. 
+See SynGenLoss/Examples. An illustration of how the model calculates the power losses is shown below. 
+![Tux, the Linux mascot](\Figures\Model_1.pdf)
 
 
 ### References 

@@ -1,2 +1,16 @@
 
 *.pyc
+
+SynGenLoss.egg-info/
+
+build/lib/SynGenLoss/__init__.py
+
+build/lib/SynGenLoss/Model1/__init__.py
+
+build/lib/SynGenLoss/Model1/aabjora_model.py
+
+build/lib/SynGenLoss/Model1/GenSynMachineLosses.py
+
+build/lib/SynGenLoss/utils.py
+
+*.afdesign

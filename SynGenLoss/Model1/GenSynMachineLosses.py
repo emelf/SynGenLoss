@@ -32,12 +32,12 @@ class GeneratorLossModel:
 
     def calc_losses_pu(self, P, Q, Vt): 
         """Calculate generator losses based on P, Q, and Vt. \n
-        returns n, P_loss_stator, P_loss_rotor, P_loss_constant in [kW]"""
+        returns a tuple of (efficiency, P_loss_stator, P_loss_rotor, P_loss_constant) in [pu]"""
         ia, ifd, _ = self.calc_currents(P, Q, Vt) 
         P_loss_stator = get_stator_loss(ia, self.md.Ia_nom, self.md.P_an, self.md.P_sn)
         P_loss_rotor = get_rotor_loss(ifd, self.md.If_nom, self.md.P_fn, self.md.P_exn, self.md.P_brn)
         P_loss_constant = get_constant_losses(Vt, self.md.V_nom, self.md.P_cn, self.md.P_wfn, self.md.P_bn)
         P_tot = P_loss_constant + P_loss_stator + P_loss_rotor
         n = P/(P + P_tot)
-        return n, P_loss_stator, P_loss_rotor, P_loss_constant
+        return (n, P_loss_stator, P_loss_rotor, P_loss_constant)
     
