@@ -4,7 +4,7 @@ The SynGenLoss python library contains a simplified power loss model of a synchr
 
 # Getting started 
 See SynGenLoss/Examples. An illustration of how the model calculates the power losses is shown below. 
-![Illustration of the generator loss model flow diagram.](\Figures\Model_1.png)
+![Illustration of the generator loss model flow diagram.](https://github.com/emelf/SynGenLoss/blob/main/Figures/Model_1.png?raw=true)
 
 
 ### References 
