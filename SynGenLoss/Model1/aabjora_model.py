@@ -1,7 +1,7 @@
 import numpy as np
-from SynGenLoss.components.GenSaturationModel_v1 import SaturationModel
-from SynGenLoss.utils import Model1DataClass
-from SynGenLoss.Model1.GenSynMachineLosses import GeneratorLossModel 
+from SynGenLoss.Model1 import SaturationModel
+from SynGenLoss.Model1 import Model1DataClass
+from SynGenLoss.Model1 import GeneratorLossModel 
 
 model_data = Model1DataClass() 
 model_data.standard_params(Sn_mva=103, V_nom_kV=11.0, cos_phi=0.9, If_nom_A=525.15, Ra=0.00182, Xd=1.059, Xq=0.676, Xp=0.141)

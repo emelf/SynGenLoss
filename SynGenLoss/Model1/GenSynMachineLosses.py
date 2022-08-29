@@ -1,9 +1,6 @@
 import numpy as np
-from SynGenLoss.components.GenSaturationModel_v1 import SaturationModel
-from SynGenLoss.components.GenStatorLossModel_v1 import get_stator_loss
-from SynGenLoss.components.GenRotorLossModel_v1 import get_rotor_loss
-from SynGenLoss.components.GenConstantLossModel_v1 import get_constant_losses
-from SynGenLoss.utils import Model1DataClass
+from Model1 import get_constant_losses, get_rotor_loss, get_stator_loss, SaturationModel
+from SynGenLoss.Model1.GenDataClass import Model1DataClass
 
 class GeneratorLossModel: 
     """ Main class for the generator loss model. Requires model data and saturation model to be defined before use. """
