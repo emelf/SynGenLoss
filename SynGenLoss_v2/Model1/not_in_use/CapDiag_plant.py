@@ -2,17 +2,17 @@ import numpy as np
 from numpy import cos, sin, sqrt, arctan
 
 from scipy.optimize import brenth, root
-from .GenDataClass import Model1DataClass
-from .components.GenSaturationModel_v1 import SaturationModel
+from ..DataClasses import GenDataClass
+from ..components.GenSaturationModel_v1 import SaturationModel
 
 import cmath as cm
-from .CapDiag import CapabilityDiagram 
+from ..CapDiag import CapabilityDiagram 
 from .CapDiag_trafo import TrafoCapabilityDiagram
 from copy import deepcopy
 from typing import Sequence
 
 class PlantCapabilityDiagram: 
-    def __init__(self, gen_data: Sequence[Model1DataClass], sat_data: Sequence[SaturationModel], X_Ts_pu: Sequence[float]): 
+    def __init__(self, gen_data: Sequence[GenDataClass], sat_data: Sequence[SaturationModel], X_Ts_pu: Sequence[float]): 
         self.mds = [deepcopy(gen_d) for gen_d in gen_data] 
         self.sat = [deepcopy(sat_d) for sat_d in sat_data]
         self.X_Ts_pu = X_Ts_pu

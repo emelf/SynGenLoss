@@ -2,12 +2,12 @@ import numpy as np
 from numpy import cos, sin, sqrt, arctan
 
 from scipy.optimize import brenth, root
-from .GenDataClass import Model1DataClass
+from .DataClasses import Model1DataClass
 from .components.GenSaturationModel_v1 import SaturationModel
 
 import cmath as cm
 from .CapDiag import CapabilityDiagram 
-from .CapDiag_trafo import TrafoCapabilityDiagram
+from .not_in_use.CapDiag_trafo import TrafoCapabilityDiagram
 from copy import deepcopy
 from typing import Sequence
 

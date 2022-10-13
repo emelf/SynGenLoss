@@ -2,15 +2,15 @@ import numpy as np
 from numpy import cos, sin, sqrt, arctan
 
 from scipy.optimize import brenth, root
-from .GenDataClass import Model1DataClass
-from .components.GenSaturationModel_v1 import SaturationModel
+from ..DataClasses import GenDataClass
+from ..components.GenSaturationModel_v1 import SaturationModel
 
 import cmath as cm
-from .CapDiag import CapabilityDiagram 
+from ..CapDiag import CapabilityDiagram 
 from copy import deepcopy
 
 class TrafoCapabilityDiagram(CapabilityDiagram): 
-    def __init__(self, gen_data: Model1DataClass, sat_data: SaturationModel, X_T_pu: float): 
+    def __init__(self, gen_data: GenDataClass, sat_data: SaturationModel, X_T_pu: float): 
         self.md = deepcopy(gen_data)
         self.sat = deepcopy(sat_data)
         self.X_T_pu = X_T_pu
