@@ -12,8 +12,7 @@ sat_model = SaturationModel(bv=1.0, k=1.0308, Cm=0.160, m=7)
 
 AabjoraGen = GeneratorModel(model_data, sat_model)
 
-T1_data = TrafoDataClass()
-T1_data.define_params(103, 132, 11, 0.129, 0.0031, 0.001)
+T1_data = TrafoDataClass(103, 132, 11, 0.129, 0.0031, 0.003, 0.001)
 AabjoraTrafo = TrafoModel(T1_data)
 
 AabjoraPlant = PowerPlantModel([AabjoraGen], [AabjoraTrafo])

@@ -57,13 +57,17 @@ class GenDataClass:
     
     def get_nominal_losses(self) -> Sequence[float]: 
         return self.P_an, self.P_sn, self.P_fn, self.P_brn, self.P_exn, self.P_cn, self.P_wfn, self.P_bn
-    
+
+
 class TrafoDataClass: 
     """A dataclass for storing transformer model parameters. \n 
     Usage: Call the following functions \n 
     define_params(*params) \n """
+    def __init__(self, Sn_mva: float, V_hv_kv: float, V_lv_kv: float, V_SHC_pu: float, P_Cu_pu: float, I_E: float, P_Fe_pu: float) -> None:
+        self.define_params(Sn_mva, V_hv_kv, V_lv_kv, V_SHC_pu, P_Cu_pu, I_E, P_Fe_pu)
     
-    def define_params(self, Sn_mva: float, V_hv_kv: float, V_lv_kv: float, V_SHC_pu: float, P_Cu_pu: float, P_Fe_pu: float) -> None: 
+    
+    def define_params(self, Sn_mva: float, V_hv_kv: float, V_lv_kv: float, V_SHC_pu: float, P_Cu_pu: float, I_E:float, P_Fe_pu: float) -> None: 
         """Sn_mva: Rated apparent power [MVA] \n 
         V_hv_kv: Rated voltage at the HV side [kV] \n
         V_lv_kv: Rated voltage at the LV side [kV] \n
@@ -77,12 +81,13 @@ class TrafoDataClass:
         self.V_lv_kv = V_lv_kv
         self.V_SHC_pu = V_SHC_pu
         self.P_Cu_pu = P_Cu_pu
+        self.I_E = I_E
         self.P_Fe_pu = P_Fe_pu
         
         # Calculation parameters: 
         self.G_Fe = self.P_Fe_pu 
-        self.Y_E = self.G_Fe
-        self.B_mu = 0.0
+        self.B_mu = sqrt(self.I_E**2 - self.G_Fe**2)
+        self.Y_E = self.G_Fe + 1j*self.B_mu
         
         self.Z_T = V_SHC_pu
         self.R_T = P_Cu_pu 
@@ -97,8 +102,9 @@ class TrafoDataClass:
     def get_calc_params(self) -> Sequence[float]: 
         """Return G_Fe, Y_E, B_mu, Z_T, R_T, X_T \n 
         All quantities in pu. """
-        return self.G_Fe, self.Y_E, self.B_mu, self.Z_T, self.R_T, self.X_T
-    
+        return self.G_Fe, self.B_mu, self.Y_E, self.B_mu, self.Z_T, self.R_T, self.X_T
+
+
 class LineDataClass: 
     """A dataclass for storing line/cable model parameters. Assuming the pi model.\n 
     Usage: Call the following functions \n 

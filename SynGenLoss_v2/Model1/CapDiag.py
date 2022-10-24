@@ -6,6 +6,8 @@ from copy import deepcopy
 from numba import njit 
 import cmath as cm
 from typing import Sequence
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
 
 from .ModelClasses import GeneratorModel, TrafoModel
 
@@ -101,12 +103,20 @@ class CapabilityDiagram:
             Q_min = np.max((Q2, Q3_min))
         else: 
             Q_min = np.max((Q1, Q2, Q3_min))
-        return P_g, Q_min, Q_max
+        return P_g, Q_min, Q_max 
+    
+    def is_inside(self, V: float, P_pu: float, Q_pu: float) -> bool: 
+        P_new, Q_min, Q_max = self.get_Q_lims(V, P_pu)
+        if P_pu > P_new or Q_min > Q_pu or Q_max < Q_pu: 
+            return False 
+        else: 
+            return True
 
 
 class TrafoCapabilityDiagram(CapabilityDiagram): 
     def __init__(self, gen: GeneratorModel, trafo: TrafoModel): 
         super().__init__(gen)
+        self.trafo = deepcopy(trafo)
         self.trafo_md = deepcopy(trafo.md)
         self.X_T_pu = self.trafo_md.X_T
         
@@ -144,6 +154,18 @@ class TrafoCapabilityDiagram(CapabilityDiagram):
         Q_g_hv = self._calc_Q_hv(V_g_lim, P_g, Q_g)
         return Q_g_hv
     
+    def is_inside(self, V: float, P_pu: float, Q_pu: float, V_min=0.95, V_max=1.05) -> bool: 
+        P = P_pu * self.md.Sn_mva 
+        Q = Q_pu * self.md.Sn_mva
+        P_g, Q_g, V_g, _ = self.trafo.calc_PQV_sending(P, Q, V)
+        P_g = P_g / self.md.Sn_mva
+        Q_g = Q_g / self.md.Sn_mva
+        P_new, Q_min, Q_max = self.get_Q_lims(V_g, P_g)
+        P_g_cond = P_g <= P_new
+        Q_g_cond = Q_min <= Q_g <= Q_max
+        V_g_cond =  V_min <= V_g <= V_max
+        return P_g_cond and Q_g_cond and V_g_cond
+
     def _calc_Q_g(self, V_hv, V_g, delta): 
         return V_g**2/self.X_T_pu - V_hv*V_g*cos(delta)/self.X_T_pu 
     
@@ -212,6 +234,13 @@ class PlantCapabilityDiagram:
         Q_hvs = np.array([self._calc_Q_hv(V_g, P_g, Q_g, X_T) for V_g, P_g, Q_g, X_T in zip(V_g_lims, P_gs, Q_gs, self.X_Ts_pu)] ) * self.Sn_base
         return Q_hvs
     
+    def is_inside(self, V_hv: float, P_hvs_mva: Sequence[float], Q_hvs_mva: Sequence[float]) -> bool: 
+        P_hvs_pu = np.array(P_hvs_mva) / self.Sn_base
+        Q_hvs_pu = np.array(Q_hvs_mva) / self.Sn_base
+        G1_inside = self.CDs_trafo[0].is_inside(V_hv, P_hvs_pu[0], Q_hvs_pu[0])
+        G2_inside = self.CDs_trafo[1].is_inside(V_hv, P_hvs_pu[1], Q_hvs_pu[1])
+        return G1_inside & G2_inside
+    
     def _calc_delta_g(self, V_hv, V_g, P_g, X_T): 
         return np.arcsin(P_g * X_T / (V_g * V_hv)) 
         
@@ -220,3 +249,27 @@ class PlantCapabilityDiagram:
 
     def _calc_Q_hv(self, V_g, P_g, Q_g, X_T): 
         return (Q_g*V_g - X_T*(P_g**2 + Q_g**2)) / (V_g**2) 
+
+class SimpleCapDiag: 
+    def __init__(self, gen: GeneratorModel):
+        self.md = deepcopy(gen.md) 
+        self.sat = deepcopy(gen.satmodel)
+        self.E_min = 0.1 
+        self.I_f_max = 2.0
+        self.delta_max = 50*np.pi/180
+        self.P_max = 0.9
+        self.V_g = 1.0
+        Q1 = CDFuncs.calc_Q1(self.V_g, self.md.Xd, self.md.Xq, self.E_min, 1e-6) 
+        Q2 = CDFuncs.calc_Q2(self.V_g, self.md.Xd, self.md.Xq, self.P_max, self.delta_max) 
+        _, __, Q3 = CDFuncs.calc_Q3(self.V_g, self.P_max) 
+        Q4 = CDFuncs.calc_Q4(self.V_g, self.I_f_max, self.md.Xd, self.md.Xq, self.md.Xp, self.md.Ra, self.sat.bv, self.sat.k, self.sat.Cm, self.sat.m, 1e-6) 
+        self.Pt1 = Point(Q1, 0.0)
+        self.Pt2 = Point(Q2, self.P_max)
+        self.Pt3 = Point(0.0, 1.0)
+        self.Pt4 = Point(Q3, self.P_max)
+        self.Pt5 = Point(Q4, 0.0)
+        self.polygon = Polygon([self.Pt1, self.Pt2, self.Pt3, self.Pt4, self.Pt5])
+    
+    def is_inside(self, P_pu, Q_pu): 
+        return self.polygon.contains(Point(Q_pu, P_pu))  
+        

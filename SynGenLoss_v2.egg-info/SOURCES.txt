@@ -9,9 +9,10 @@ SynGenLoss_v2.egg-info/SOURCES.txt
 SynGenLoss_v2.egg-info/dependency_links.txt
 SynGenLoss_v2.egg-info/top_level.txt
 SynGenLoss_v2/Model1/CapDiag.py
+SynGenLoss_v2/Model1/DataClasses.py
 SynGenLoss_v2/Model1/Gen160MVA.py
-SynGenLoss_v2/Model1/GenDataClass.py
-SynGenLoss_v2/Model1/GenSynMachineLosses.py
+SynGenLoss_v2/Model1/ModelClasses.py
+SynGenLoss_v2/Model1/PowerPlant.py
 SynGenLoss_v2/Model1/__init__.py
 SynGenLoss_v2/Model1/aabjora_model.py
 SynGenLoss_v2/Model1/components/GenConstantLossModel_v1.py
