@@ -87,7 +87,7 @@ class TrafoDataClass:
         # Calculation parameters: 
         self.G_Fe = self.P_Fe_pu 
         self.B_mu = sqrt(self.I_E**2 - self.G_Fe**2)
-        self.Y_E = self.G_Fe + 1j*self.B_mu
+        self.Y_E = self.G_Fe - 1j*self.B_mu
         
         self.Z_T = V_SHC_pu
         self.R_T = P_Cu_pu 
@@ -112,11 +112,11 @@ class LineDataClass:
     
     def define_params(self, Sn_mva:float, V_kv: float, r: float, x: float, b: float, length: float) -> None: 
         """Sn_mva: Rated apparent power [MVA] \n 
-        V_hv_kv: Rated voltage at the HV side [kV] \n
-        V_lv_kv: Rated voltage at the LV side [kV] \n
-        V_SHC_pu: Short circuit voltage [pu] \n
-        P_Cu_pu: Nominal copper losses of the machine (equivalent to R_T) [pu] \n 
-        P_Fe_pu: No-load losses [pu] \n 
+        V_kv: Rated voltage \n
+        r: resistance [Ohm/km] \n
+        x: reactance [Ohm/km] \n 
+        b: susceptance [uS/km] \n 
+        length: Line length [km] \n
         Source: Ch. 3.2.1 in "Power System Dynamics: Stability and Control", Jan Machowski
         """
         self.Sn_mva = Sn_mva

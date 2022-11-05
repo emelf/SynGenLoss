@@ -8,6 +8,7 @@ import cmath as cm
 from typing import Sequence
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
+from shapely.geometry.linestring import LineString
 
 from .ModelClasses import GeneratorModel, TrafoModel
 
@@ -250,26 +251,48 @@ class PlantCapabilityDiagram:
     def _calc_Q_hv(self, V_g, P_g, Q_g, X_T): 
         return (Q_g*V_g - X_T*(P_g**2 + Q_g**2)) / (V_g**2) 
 
-class SimpleCapDiag: 
-    def __init__(self, gen: GeneratorModel):
-        self.md = deepcopy(gen.md) 
-        self.sat = deepcopy(gen.satmodel)
-        self.E_min = 0.1 
-        self.I_f_max = 2.0
-        self.delta_max = 50*np.pi/180
-        self.P_max = 0.9
-        self.V_g = 1.0
-        Q1 = CDFuncs.calc_Q1(self.V_g, self.md.Xd, self.md.Xq, self.E_min, 1e-6) 
-        Q2 = CDFuncs.calc_Q2(self.V_g, self.md.Xd, self.md.Xq, self.P_max, self.delta_max) 
-        _, __, Q3 = CDFuncs.calc_Q3(self.V_g, self.P_max) 
-        Q4 = CDFuncs.calc_Q4(self.V_g, self.I_f_max, self.md.Xd, self.md.Xq, self.md.Xp, self.md.Ra, self.sat.bv, self.sat.k, self.sat.Cm, self.sat.m, 1e-6) 
-        self.Pt1 = Point(Q1, 0.0)
-        self.Pt2 = Point(Q2, self.P_max)
-        self.Pt3 = Point(0.0, 1.0)
-        self.Pt4 = Point(Q3, self.P_max)
-        self.Pt5 = Point(Q4, 0.0)
-        self.polygon = Polygon([self.Pt1, self.Pt2, self.Pt3, self.Pt4, self.Pt5])
+# class SimpleCapDiag: 
+#     def __init__(self, gen: GeneratorModel):
+#         self.md = deepcopy(gen.md) 
+#         self.sat = deepcopy(gen.satmodel)
+#         self.E_min = 0.1 
+#         self.I_f_max = 2.0
+#         self.delta_max = 50*np.pi/180
+#         self.P_max = 0.9
+#         self.V_g = 1.0
+#         Q1 = CDFuncs.calc_Q1(self.V_g, self.md.Xd, self.md.Xq, self.E_min, 1e-6) 
+#         Q2 = CDFuncs.calc_Q2(self.V_g, self.md.Xd, self.md.Xq, self.P_max, self.delta_max) 
+#         _, __, Q3 = CDFuncs.calc_Q3(self.V_g, self.P_max) 
+#         Q4 = CDFuncs.calc_Q4(self.V_g, self.I_f_max, self.md.Xd, self.md.Xq, self.md.Xp, self.md.Ra, self.sat.bv, self.sat.k, self.sat.Cm, self.sat.m, 1e-6) 
+#         self.Pt1 = Point(Q1, 0.0)
+#         self.Pt2 = Point(Q2, self.P_max)
+#         self.Pt3 = Point(0.0, 1.0)
+#         self.Pt4 = Point(Q3, self.P_max)
+#         self.Pt5 = Point(Q4, 0.0)
+#         self.polygon = Polygon([self.Pt1, self.Pt2, self.Pt3, self.Pt4, self.Pt5])
     
-    def is_inside(self, P_pu, Q_pu): 
-        return self.polygon.contains(Point(Q_pu, P_pu))  
+#     def is_inside(self, P_pu, Q_pu): 
+#         return self.polygon.contains(Point(Q_pu, P_pu))  
         
+class SimpleCapDiag: 
+    def __init__(self, CD): 
+        self.CD = CD 
+        points_1 = [] 
+        points_2 = []
+        for P in np.linspace(1e-3, 1.0, 100):    
+            _, Q_min, Q_max = CD.get_Q_lims(1.0, P)
+            points_1.append(Point(Q_min, P))
+            points_2.append(Point(Q_max, P))
+        self.CD_poly = Polygon(points_1 + points_2[::-1]) 
+    
+    def get_Q_lims(self, P_g):
+        line = LineString([Point(-2, P_g), Point(2, P_g)])
+        lims = np.array(self.CD_poly.intersection(line).coords)
+        if lims.shape[0] == 2:
+            min_val, max_val = lims
+            return min_val[0], max_val[0]
+        else: 
+            return 0.0, 0.0
+    
+    def is_inside(self, P_g, Q_g): 
+        return self.CD_poly.contains(Point(Q_g, P_g))

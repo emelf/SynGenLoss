@@ -80,10 +80,10 @@ class TrafoModel(BranchModel):
 class LineModel(BranchModel): 
     def __init__(self, model_data: LineDataClass) -> None: 
         self.md = model_data 
-        self.R = self.md.r * self.md.length / self.md.Z_base
-        self.X = self.md.x * self.md.length / self.md.Z_base
+        self.R = self.md.r * self.md.length
+        self.X = self.md.x * self.md.length
         self.Z = self.R + 1j*self.X
-        self.Y = -1j*self.md.b * self.md.length * self.md.Z_base
+        self.Y = 1e-6j*self.md.b * self.md.length
         super().__init__(model_data, self.Z, self.Y)
         
         
